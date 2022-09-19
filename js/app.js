@@ -7,7 +7,6 @@ fetch('../data.json')
   })
 
 function getData(data) {
-  console.log(data);
   const parentDiv = document.getElementById('drawer-parent');
   data.forEach(element => {
     const { name, id, price, img } = element;
@@ -58,7 +57,6 @@ function getData(data) {
 }
 
 function handleModal(id) {
-  console.log(Data);
   const product = Data.find((data) => data.id === id)
   const { price, name, img } = product
   const parentDiv = document.getElementById('modal-parent')
@@ -102,13 +100,35 @@ let count = 0;
 let Price = 0;
 let Tax = 0;
 let total = 0;
+
+let buyList = []
+
 function handleBuy(id) {
-  let product = Data.find(data => data.id === id)
-  const { name, img, price } = product;
+  const findId = Data.find(f => f.id === id)
+  buyList.push(findId);
+  display();
+}
+
+
+function display() {
+
   const parentDiv = document.getElementById('cart-parent')
-  const div = document.createElement('div')
-  div.classList.add('border-[2px]', 'bg-gray-200', 'border-red-400', 'rounded-lg', 'px-2', 'flex', 'justify-between', 'items-center', 'flex-row')
-  div.innerHTML = `
+  parentDiv.innerHTML = ''
+
+  let prices = 0
+  if (buyList.length === 0) {
+    document.getElementById('product-price').innerText = 0
+    document.getElementById('product-count').innerText = 0;
+    document.getElementById('cart-count-nav').innerText = 0;
+    document.getElementById('product-total').innerText = 0;
+    document.getElementById('product-tax').innerText = 0;
+  }
+  buyList.forEach(p => {
+    const { name, img, price } = p;
+    prices = prices + price
+    const div = document.createElement('div')
+    div.classList.add('border-[2px]', 'bg-gray-200', 'border-red-400', 'rounded-lg', 'px-2', 'flex', 'justify-between', 'items-center', 'flex-row')
+    div.innerHTML = `
     <img
       src="${img}"
       alt=""
@@ -116,17 +136,16 @@ function handleBuy(id) {
     />
     <p>"${name}"</p>
     <p class="border-[2px] rounded-lg px-[10px] py-[2px]">1</p>
-    <i class="fa-sharp fa-solid text-red-500 fa-trash text-xl" onclick="deleteItem('${id}')"></i>
+    <i class="fa-sharp fa-solid text-red-500 fa-trash text-xl" onclick="deleteItem('${p.id}')"></i>
     `
-  parentDiv.appendChild(div)
-
-  const cartCountNav = document.getElementById('cart-count-nav')
-  const newCount = cartCountNav.innerText = count += 1
-  const productCount = document.getElementById('product-count').innerText = newCount;
-  const productPrice = document.getElementById('product-price').innerText = Price += price;
-  const productTax = document.getElementById('product-tax').innerText = (productPrice * 10 / 100 + Tax).toFixed(2)
-  const productTotal = document.getElementById('product-total').innerText = (productPrice + parseInt(productTax))
-
+    parentDiv.appendChild(div)
+    const cartCountNav = document.getElementById('cart-count-nav').innerText = buyList.length
+    const productCount = document.getElementById('product-count').innerText = buyList.length;
+    const productPrice = document.getElementById('product-price').innerText = prices
+    const productTax = document.getElementById('product-tax').innerText = (productPrice * 10 / 100 + Tax).toFixed(2)
+    const productTotal = document.getElementById('product-total').innerText = (productPrice + parseInt(productTax))
+    console.log(prices);
+  })
 }
 
 document.getElementById('clear-all').addEventListener('click', function () {
@@ -136,13 +155,11 @@ document.getElementById('clear-all').addEventListener('click', function () {
   document.getElementById('product-price').innerText = 0;
   document.getElementById('product-tax').innerText = 0;
   document.getElementById('product-total').innerText = 0;
+  buyList = [];
 })
 
 const deleteItem = (id) => {
-  // const item = Data.find(item => item.id !== id)
-  // console.log(item);
-  let item = Product.filter(pro => pro.id !== id)
-
-
-
+  let item = buyList.filter(pro => pro.id !== id)
+  buyList = item
+  display()
 }
